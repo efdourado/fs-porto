@@ -1,0 +1,11 @@
+# Python
+.venv/
+__pycache__/
+
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+
+# Secrets
+.env

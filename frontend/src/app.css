@@ -1,3 +1,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Paleta (valores RGB para permitir opacidade no Tailwind: bg-accent/10) */
+:root {
+  --bg: 255 255 255;
+  --surface: 245 245 247;
+  --elevated: 255 255 255;
+  --ink: 29 29 31;
+  --muted: 110 110 115;
+  --line: 0 0 0 / 0.08;
+  --accent: 0 113 227;
+  --danger: 215 0 21;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 0 0 0;
+    --surface: 28 28 30;
+    --elevated: 44 44 46;
+    --ink: 245 245 247;
+    --muted: 152 152 157;
+    --line: 255 255 255 / 0.12;
+    --accent: 41 151 255;
+    --danger: 255 69 58;
+    color-scheme: dark;
+  }
+}
+
+/* --line já inclui a opacidade, então não usa <alpha-value> */
+@layer utilities {
+  .border-line { border-color: rgb(var(--line)); }
+  .divide-line > * + * { border-color: rgb(var(--line)); }
+  .bg-line { background-color: rgb(var(--line)); }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans text-[17px] leading-[1.47];
+    letter-spacing: -0.022em;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.2);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Placeholder animado de carregamento */
+  .skeleton {
+    @apply rounded-md animate-shimmer;
+    background: linear-gradient(90deg, rgb(var(--surface)) 0%, rgb(var(--line)) 50%, rgb(var(--surface)) 100%);
+    background-size: 800px 100%;
+  }
+
+  /* Texto gerado pelo LLM (Markdown convertido em HTML) */
+  .markdown {
+    @apply text-[17px] leading-relaxed;
+    overflow-wrap: anywhere; /* nomes de arquivo longos quebram em vez de vazar no celular */
+  }
+  .markdown > * + * { @apply mt-4; }
+  .markdown h1, .markdown h2, .markdown h3, .markdown h4 { @apply font-display font-semibold tracking-tight mt-6; }
+  .markdown h1 { @apply text-2xl; }
+  .markdown h2 { @apply text-xl; }
+  .markdown h3, .markdown h4 { @apply text-[17px]; }
+  .markdown strong { @apply font-semibold; }
+  .markdown ul { @apply list-disc pl-5 space-y-1; }
+  .markdown ol { @apply list-decimal pl-5 space-y-1; }
+  .markdown li > ul, .markdown li > ol { @apply mt-1; }
+  .markdown a { @apply text-accent hover:underline; }
+  .markdown hr { @apply border-line my-6; }
+  .markdown blockquote { @apply border-l-2 border-line pl-4 text-muted; }
+  .markdown code { @apply font-mono text-[0.9em] bg-surface rounded px-1 py-0.5; }
+  .markdown pre { @apply bg-surface rounded-xl p-4 overflow-x-auto text-sm; }
+  .markdown pre code { @apply bg-transparent p-0; }
+  .markdown table { @apply w-full text-left text-[15px] border-collapse block overflow-x-auto; }
+  .markdown th { @apply font-semibold border-b border-line py-2 pr-4; }
+  .markdown td { @apply border-b border-line py-2 pr-4 align-top; }
+}

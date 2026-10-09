@@ -1,25 +1,33 @@
 import axios from 'axios';
-import { env } from '$env/dynamic/public';
 
-// Usar sempre a URL completa para evitar problemas com proxy
+// URL da API de upload (api_upload.py)
 const UPLOAD_API_URL = 'http://localhost:8001';
 
-console.log('Upload API URL configurada para:', UPLOAD_API_URL);
-
-// Configurar o axios
+// Sem Content-Type fixo: com FormData, o navegador define multipart/form-data com o boundary correto
 const uploadApi = axios.create({
   baseURL: UPLOAD_API_URL,
-  headers: {
-    'Content-Type': 'multipart/form-data',
-  },
-  // Aumentar o timeout para evitar falhas rápidas
-  timeout: 10000
+  timeout: 60000
 });
 
 export interface UploadResponse {
-  success: boolean;
+  status: string;
   message: string;
-  arquivo?: string;
+  arquivo: string;
 }
+
+export const uploadService = {
+  // Envia um PDF; a indexação continua em segundo plano no servidor
+  enviarContrato: async (arquivo: File): Promise<UploadResponse> => {
+    const form = new FormData();
+    form.append('file', arquivo);
+    try {
+      const response = await uploadApi.post('/upload/contrato', form);
+      return response.data;
+    } catch (error: any) {
+      if (error?.response?.data?.detail) throw new Error(String(error.response.data.detail));
+      throw new Error('Não foi possível enviar. A API de upload está rodando na porta 8001?');
+    }
+  }
+};
 
 export default uploadApi;

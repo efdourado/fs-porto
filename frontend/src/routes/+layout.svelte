@@ -4,9 +4,6 @@
   import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   
-  // Store global para controlar a visibilidade do status da API
-  export const showApiStatus = writable(false);
-  
   // Store para controlar o tema atual
   export const currentTheme = writable('contratuslight');
   
@@ -26,14 +23,6 @@
     document.documentElement.setAttribute('data-theme', savedTheme);
     currentTheme.set(savedTheme);
   });
-  
-  function toggleApiStatus() {
-    showApiStatus.update(value => {
-      const newValue = !value;
-      console.log('Toggle API Status:', newValue);
-      return newValue;
-    });
-  }
 </script>
 
 <div class="min-h-screen flex flex-col bg-base-100 animate-fade-in">
@@ -88,30 +77,4 @@
   <main class="flex-grow container mx-auto px-4 py-8" transition:fade={{ duration: 300 }}>
     <slot />
   </main>
-
-  <footer class="p-6 bg-gradient-to-r from-base-200 to-base-300 text-base-content">
-    <div class="footer-content container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center">
-        <span class="font-bold text-primary mr-2">Contratus AI</span>
-        <p>Copyright © 2025 - Todos os direitos reservados</p>
-      </div>
-      
-      <div class="flex space-x-4">
-        <a href="/" class="link link-hover hover:text-primary transition-colors duration-300">Política de Privacidade</a>
-        <a href="/" class="link link-hover hover:text-primary transition-colors duration-300">Termos de Uso</a>
-        
-        <!-- Botão discreto para mostrar/ocultar status da API -->
-        <button 
-          class="btn btn-sm btn-ghost hover:bg-base-300 transition-all duration-300" 
-          on:click={toggleApiStatus} 
-          title="Mostrar/ocultar status da API"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span class="text-xs ml-1">API</span>
-        </button>
-      </div>
-    </div>
-  </footer>
 </div>

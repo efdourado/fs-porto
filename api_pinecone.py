@@ -155,6 +155,22 @@ def read_root():
             "error": str(e)
         }
 
+def listar_ids_ordenados():
+    """Lista todos os IDs do índice, ordenados por contrato e posição do chunk (ex.: Contrato_X_2 antes de Contrato_X_10)."""
+    ids = [id for pagina in index.list() for id in pagina]
+    def chave(id):
+        prefixo, _, posicao = id.rpartition("_")
+        return (prefixo, int(posicao)) if posicao.isdigit() else (id, 0)
+    return sorted(ids, key=chave)
+
+def buscar_metadados(ids, lote=100):
+    """Busca os metadados dos IDs informados, preservando a ordem."""
+    metadados = []
+    for i in range(0, len(ids), lote):
+        vetores = index.fetch(ids=ids[i:i+lote]).vectors
+        metadados.extend(vetores[id].metadata or {} for id in ids[i:i+lote] if id in vetores)
+    return metadados
+
 @app.get("/contratos", response_model=SearchResponse)
 def listar_contratos(
     skip: int = Query(0, description="Número de registros para pular"),
@@ -177,31 +193,16 @@ def listar_contratos(
         stats = index.describe_index_stats()
         total = stats.get("total_vector_count", 0)
         
-        # Limitação: Pinecone não suporta paginação nativa como MongoDB
-        # Vamos usar uma abordagem simplificada para demonstração
-        # Em produção, você pode querer implementar uma solução mais robusta
-        
-        # Busca genérica para obter todos os documentos
-        # Nota: Isso não é eficiente para grandes conjuntos de dados
-        # Criamos um vetor de zeros com a dimensão do modelo de embedding
-        dummy_vector = [0.0] * EMBEDDING_DIM
-        
-        # Fazemos uma consulta com um limite alto
-        resultados_query = index.query(
-            vector=dummy_vector,
-            top_k=skip + limit,
-            include_metadata=True
-        )
-        
-        # Aplica paginação manualmente
-        matches = resultados_query.matches[skip:skip+limit] if resultados_query.matches else []
+        # Pagina sobre os IDs (ordenados por contrato e posição do chunk) e busca os metadados.
+        # Obs.: consultar com um vetor de zeros não funciona com a métrica cosine (sempre retorna vazio).
+        ids = listar_ids_ordenados()[skip:skip+limit]
         
         resultados = []
-        for match in matches:
+        for metadata in buscar_metadados(ids):
             resultados.append(ContratoResponse(
-                arquivo=match.metadata.get("arquivo", ""),
-                texto=match.metadata.get("texto", ""),
-                score=match.score
+                arquivo=metadata.get("arquivo", ""),
+                texto=metadata.get("texto", ""),
+                score=0.0
             ))
         
         return SearchResponse(resultados=resultados, total=total)
@@ -294,29 +295,14 @@ def listar_arquivos():
         stats = index.describe_index_stats()
         total = stats.get("total_vector_count", 0)
         
-        # Limitação: Pinecone não tem uma função direta para obter valores distintos
-        # Vamos usar uma abordagem simplificada para demonstração
-        
-        # Busca genérica para obter documentos
-        # Nota: Isso não é eficiente para grandes conjuntos de dados
-        # Criamos um vetor de zeros com a dimensão do modelo de embedding
-        dummy_vector = [0.0] * EMBEDDING_DIM
-        
-        # Fazemos uma consulta com um limite alto
-        resultados_query = index.query(
-            vector=dummy_vector,
-            top_k=min(total, 1000),  # Limita a 1000 para evitar problemas de performance
-            include_metadata=True
-        )
-        
-        # Extrai nomes de arquivos únicos
+        # Extrai nomes de arquivos únicos a partir dos metadados de todos os chunks
         arquivos = set()
-        for match in resultados_query.matches:
-            arquivo = match.metadata.get("arquivo")
+        for metadata in buscar_metadados(listar_ids_ordenados()):
+            arquivo = metadata.get("arquivo")
             if arquivo:
                 arquivos.add(arquivo)
         
-        return {"arquivos": list(arquivos)}
+        return {"arquivos": sorted(arquivos)}
     
     except Exception as e:
         print(f"Erro ao listar arquivos: {e}")

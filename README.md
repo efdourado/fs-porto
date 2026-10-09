@@ -1,4 +1,4 @@
-# Contratus AI
+# Porto
 
 Sistema de consulta de contratos imobiliários com IA. Você faz uma busca ou uma pergunta em linguagem natural ("qual o valor do aluguel do Bruno?") e o sistema encontra os trechos relevantes dos contratos em PDF e, no modo pergunta, gera uma resposta com um LLM.
 

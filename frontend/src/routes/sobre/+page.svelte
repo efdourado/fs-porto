@@ -1,15 +1,15 @@
 <script>
-  // Página Sobre - Contratus AI
+  // Página Sobre - Porto
 </script>
 
 <div class="prose max-w-none">
-  <h1>Sobre o Contratus AI</h1>
+  <h1>Sobre o Porto</h1>
   
   <div class="card bg-base-100 shadow-xl mb-8">
     <div class="card-body">
       <h2 class="card-title">Nossa Solução</h2>
       <p>
-        O Contratus AI é uma plataforma avançada de consulta de contratos que utiliza 
+        O Porto é uma plataforma avançada de consulta de contratos que utiliza 
         tecnologia de busca semântica para facilitar o acesso e a compreensão de documentos jurídicos.
       </p>
       <p>

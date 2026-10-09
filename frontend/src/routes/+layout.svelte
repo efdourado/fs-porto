@@ -5,13 +5,13 @@
   import { fade } from 'svelte/transition';
   
   // Store para controlar o tema atual
-  export const currentTheme = writable('contratuslight');
+  export const currentTheme = writable('portolight');
   
   // Função para alternar o tema entre claro e escuro
   function toggleTheme() {
     currentTheme.update(theme => {
-      const newTheme = theme === 'contratusdark' ? 'contratuslight' : 'contratusdark';
-      localStorage.setItem('contratus-theme', newTheme);
+      const newTheme = theme === 'portodark' ? 'portolight' : 'portodark';
+      localStorage.setItem('porto-theme', newTheme);
       document.documentElement.setAttribute('data-theme', newTheme);
       return newTheme;
     });
@@ -19,7 +19,7 @@
   
   // Carregar o tema salvo no localStorage ao montar o componente
   onMount(() => {
-    const savedTheme = localStorage.getItem('contratus-theme') || 'contratuslight';
+    const savedTheme = localStorage.getItem('porto-theme') || 'portolight';
     document.documentElement.setAttribute('data-theme', savedTheme);
     currentTheme.set(savedTheme);
   });
@@ -42,7 +42,7 @@
           </ul>
         </div>
         <a href="/" class="btn btn-ghost normal-case text-xl font-bold tracking-tight hover:bg-primary/20 transition-all duration-300">
-          <span class="text-white">Contratus</span><span class="text-accent">AI</span>
+          <span class="text-white">Porto</span>
         </a>
       </div>
       <div class="navbar-center hidden lg:flex">
@@ -59,7 +59,7 @@
             type="checkbox" 
             class="theme-controller" 
             on:change={toggleTheme} 
-            checked={$currentTheme === 'britodark'} 
+            checked={$currentTheme === 'portodark'} 
           />
           <!-- Ícone do sol (modo claro) -->
           <svg class="swap-on fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

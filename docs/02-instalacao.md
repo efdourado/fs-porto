@@ -33,21 +33,21 @@ O chat pode ser gratuito (`openrouter/free` escolhe automaticamente um modelo gr
 
 1. Crie a conta em [app.pinecone.io](https://app.pinecone.io) e copie a **API key**.
 2. Crie um índice com:
-   - **Nome:** `brito-ai`
+   - **Nome:** `porto`
    - **Dimensão:** `1536` (precisa ser igual a `EMBEDDING_DIM`)
    - **Métrica:** `cosine`
    - **Tipo:** Serverless, AWS, `us-east-1` (a região do plano gratuito)
    - Não use "integrated embedding": este projeto gera os próprios vetores.
-3. Abra a página do índice e copie o **Host** (`https://brito-ai-xxxx.svc....pinecone.io`).
+3. Abra a página do índice e copie o **Host** (`https://porto-xxxx.svc....pinecone.io`).
 
 O host só existe depois que o índice é criado. Também dá para criar o índice por código:
 
 ```python
 from pinecone import Pinecone, ServerlessSpec
 pc = Pinecone(api_key="pcsk_...")
-pc.create_index(name="brito-ai", dimension=1536, metric="cosine",
+pc.create_index(name="porto", dimension=1536, metric="cosine",
                 spec=ServerlessSpec(cloud="aws", region="us-east-1"))
-print(pc.describe_index("brito-ai").host)
+print(pc.describe_index("porto").host)
 ```
 
 ## 4. Arquivo `.env`

@@ -20,7 +20,7 @@ curl http://127.0.0.1:8000/
 ```json
 {
   "status": "online",
-  "message": "Contratus AI API está funcionando com Pinecone!",
+  "message": "Porto API está funcionando com Pinecone!",
   "pinecone_status": "conectado",
   "total_vetores": 132
 }

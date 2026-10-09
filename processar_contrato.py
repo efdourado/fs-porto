@@ -17,7 +17,7 @@ load_dotenv(dotenv_path=env_path)
 # Configurações do Pinecone
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_HOST = os.getenv("PINECONE_HOST")
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "brito-ai")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "porto")
 
 # Configurações da OpenAI
 from ai_config import ai_client, AI_API_KEY as OPENAI_API_KEY, EMBEDDING_MODEL

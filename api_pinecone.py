@@ -18,7 +18,7 @@ load_dotenv(dotenv_path=env_path)
 # Configurações do Pinecone
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_HOST = os.getenv("PINECONE_HOST")
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "brito-ai")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "porto")
 
 # Configurações da OpenAI
 from ai_config import ai_client as openai_client, AI_API_KEY as OPENAI_API_KEY, EMBEDDING_MODEL, EMBEDDING_DIM
@@ -87,7 +87,7 @@ def gerar_embedding(texto):
         raise
 
 # Inicializa o FastAPI
-app = FastAPI(title="Contratus AI API", 
+app = FastAPI(title="Porto API", 
               description="API para consulta semântica de contratos usando Pinecone",
               version="2.0.0")
 
@@ -128,7 +128,7 @@ def read_root():
             stats = index.describe_index_stats()
             return {
                 "status": "online", 
-                "message": "Contratus AI API está funcionando com Pinecone!",
+                "message": "Porto API está funcionando com Pinecone!",
                 "pinecone_status": "conectado",
                 "total_vetores": stats.get("total_vector_count", 0)
             }
@@ -137,7 +137,7 @@ def read_root():
             if conectar_pinecone():
                 return {
                     "status": "online", 
-                    "message": "Contratus AI API está funcionando com Pinecone!",
+                    "message": "Porto API está funcionando com Pinecone!",
                     "pinecone_status": "reconectado"
                 }
             else:

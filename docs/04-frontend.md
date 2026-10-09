@@ -67,10 +67,8 @@ Cria um axios para `http://localhost:8001` com `Content-Type: multipart/form-dat
 
 Envolve todas as páginas (`<slot />` é onde a página entra).
 
-- **Cabeçalho:** `navbar` do DaisyUI com gradiente, logo "ContratusAI", links Início / Contratos / Sobre e, em telas pequenas, um menu dropdown.
-- **Tema claro/escuro:** um store `currentTheme`; `toggleTheme()` alterna entre `contratuslight` e `contratusdark`, salva no `localStorage` e aplica com o atributo `data-theme` no `<html>` (é assim que o DaisyUI troca de tema). Os dois temas são definidos em `tailwind.config.js`.
-
-> O `checked` do botão de tema compara com `'britodark'`, um tema que não existe (resquício do nome antigo do projeto). Resultado: o ícone pode não refletir o tema salvo ao recarregar.
+- **Cabeçalho:** `navbar` do DaisyUI com gradiente, logo "Porto", links Início / Contratos / Sobre e, em telas pequenas, um menu dropdown.
+- **Tema claro/escuro:** um store `currentTheme`; `toggleTheme()` alterna entre `portolight` e `portodark`, salva no `localStorage` e aplica com o atributo `data-theme` no `<html>` (é assim que o DaisyUI troca de tema). Os dois temas são definidos em `tailwind.config.js`.
 
 ## `src/routes/+page.svelte` (`/`)
 
@@ -119,7 +117,7 @@ Chama `GET /` ao montar e mostra o status da API e do Pinecone com badges. **Nã
 
 ## Configuração
 
-- **`tailwind.config.js`:** onde o Tailwind procura classes (`content`), a fonte Inter, as animações `gradient` e `fade-in`, o plugin DaisyUI e os temas `contratuslight` e `contratusdark` (cores `primary`, `secondary`, `base-100`...). É o arquivo central para mudar a cara do app.
+- **`tailwind.config.js`:** onde o Tailwind procura classes (`content`), a fonte Inter, as animações `gradient` e `fade-in`, o plugin DaisyUI e os temas `portolight` e `portodark` (cores `primary`, `secondary`, `base-100`...). É o arquivo central para mudar a cara do app.
 - **`vite.config.js`:** define proxies `/api → :8000` e `/upload-api → :8001`. Como `api.ts` usa a URL completa, os proxies não são usados.
 - **`svelte.config.js`:** `adapter-auto` (escolhe o adaptador de deploy automaticamente) e `vitePreprocess` (permite TypeScript nos componentes).
 - **`postcss.config.js`:** liga Tailwind e Autoprefixer ao pipeline de CSS.

@@ -36,7 +36,7 @@ export default {
   daisyui: {
     themes: [
       {
-        contratuslight: {
+        portolight: {
           "primary": "#4F46E5",
           "secondary": "#7C3AED",
           "accent": "#1FB2A6",
@@ -49,7 +49,7 @@ export default {
           "warning": "#FBBD23",
           "error": "#F87272"
         },
-        contratusdark: {
+        portodark: {
           "primary": "#6366F1",
           "secondary": "#8B5CF6",
           "accent": "#22D3EE",

@@ -28,7 +28,7 @@ Gere também para "penalidade por quebra de contrato" e para "receita de bolo", 
 
 **Exercícios:**
 
-1. No console do Pinecone, abra o índice `brito-ai` e procure o ID `Contrato_Altos_Padroes_Construcoes_GR340_X_Bruno_Mendes_Oliveira_3`. Veja os metadados.
+1. No console do Pinecone, abra o índice `porto` e procure o ID `Contrato_Altos_Padroes_Construcoes_GR340_X_Bruno_Mendes_Oliveira_3`. Veja os metadados.
 2. Repare que esse chunk fala do **valor do aluguel**, mas está com `secao: "Identificação do Locador"`. Por quê? (Dica: ordem dos `if` em `identificar_secao`, e quantas vezes a palavra "locador" aparece num contrato.)
 3. Rode o splitter isolado e imprima os chunks de um contrato para ver onde ele corta.
 
@@ -70,7 +70,7 @@ Gere também para "penalidade por quebra de contrato" e para "receita de bolo", 
 **Exercícios:**
 
 1. Abra o DevTools do navegador (aba Network) e veja as chamadas para :8000 enquanto usa a página.
-2. Troque a cor `primary` do tema `contratuslight` e veja tudo mudar.
+2. Troque a cor `primary` do tema `portolight` e veja tudo mudar.
 3. Na página `/contratos`, ligue o "Modo Pergunta" e repare que o Markdown da resposta aparece cru (`**texto**`).
 
 ---
@@ -90,6 +90,7 @@ Encontrados lendo e rodando o código. Bons candidatos para as primeiras modific
 | Dependências não usadas | `sentence-transformers` (PyTorch), `einops`, `pymongo`, `pdfplumber` removidos |
 | `node_modules` versionado | 5.317 arquivos de dependências estavam no git. Removidos e ignorados; `npm install` recria |
 | `frontend/.env` | Apontava para portas erradas e nunca era lido. Removido |
+| Ícone do tema | O botão comparava com `'britodark'`, um tema que não existia. Corrigido ao renomear os temas para `portolight`/`portodark` |
 
 ### Abertos
 
@@ -123,6 +124,5 @@ Encontrados lendo e rodando o código. Bons candidatos para as primeiras modific
 | Lista carregada duas vezes ao abrir (bloco `$:` + `onMount`) | `contratos/+page.svelte` |
 | Resposta do LLM com Markdown cru e inserida com `{@html}` sem sanitizar | `contratos/+page.svelte` |
 | Modo pergunta não disponível a partir da página inicial | `+page.svelte` |
-| Botão de tema compara com `'britodark'` | `+layout.svelte` |
 | Sem tela de upload; `upload-api.ts` e `ApiTest.svelte` não são usados | `src/lib/` |
 | URLs da API fixas no código; os proxies do Vite não têm efeito | `api.ts`, `vite.config.js` |

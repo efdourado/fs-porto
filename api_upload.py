@@ -21,7 +21,7 @@ if not os.path.exists(PASTA_CONTRATOS):
     os.makedirs(PASTA_CONTRATOS)
 
 # Inicializa o FastAPI
-app = FastAPI(title="Contratus AI Imobiliária API - Upload", 
+app = FastAPI(title="Porto API - Upload", 
               description="API para upload e processamento de contratos imobiliários",
               version="1.0.0")
 

@@ -65,13 +65,15 @@ Gere também para "penalidade por quebra de contrato" e para "receita de bolo", 
 
 ## Etapa 6 · Frontend
 
-**Ler, nesta ordem:** [`api.ts`](../frontend/src/lib/services/api.ts) → [`contratos/+page.svelte`](../frontend/src/routes/contratos/+page.svelte) → [`SearchBar.svelte`](../frontend/src/lib/components/SearchBar.svelte) → [`ContratoCard.svelte`](../frontend/src/lib/components/ContratoCard.svelte) → [`+layout.svelte`](../frontend/src/routes/+layout.svelte) → [`tailwind.config.js`](../frontend/tailwind.config.js)
+**Ler, nesta ordem:** [`app.css`](../frontend/src/app.css) e [`tailwind.config.js`](../frontend/tailwind.config.js) → [`api.ts`](../frontend/src/lib/services/api.ts) → [`+page.svelte`](../frontend/src/routes/+page.svelte) → [`SearchField.svelte`](../frontend/src/lib/components/SearchField.svelte) → [`contratos.ts`](../frontend/src/lib/contratos.ts) → [`contratos/+page.svelte`](../frontend/src/routes/contratos/+page.svelte) → [`[arquivo]/+page.svelte`](../frontend/src/routes/contratos/[arquivo]/+page.svelte) → [`+layout.svelte`](../frontend/src/routes/+layout.svelte)
 
 **Exercícios:**
 
 1. Abra o DevTools do navegador (aba Network) e veja as chamadas para :8000 enquanto usa a página.
-2. Troque a cor `primary` do tema `portolight` e veja tudo mudar.
-3. Na página `/contratos`, ligue o "Modo Pergunta" e repare que o Markdown da resposta aparece cru (`**texto**`).
+2. Troque `--accent` em `app.css` (ex.: `52 199 89`, o verde da Apple) e veja todos os botões e links mudarem, nos dois temas.
+3. Ative o modo escuro do sistema e recarregue: nenhuma classe `dark:` foi usada. Explique como isso funciona.
+4. Abra um contrato e alterne entre "Documento" e "Trechos". Encontre no código onde a sobreposição entre chunks é removida.
+5. Faça uma busca, depois outra, e use o botão voltar do navegador. Por que a busca anterior volta?
 
 ---
 
@@ -90,7 +92,7 @@ Encontrados lendo e rodando o código. Bons candidatos para as primeiras modific
 | Dependências não usadas | `sentence-transformers` (PyTorch), `einops`, `pymongo`, `pdfplumber` removidos |
 | `node_modules` versionado | 5.317 arquivos de dependências estavam no git. Removidos e ignorados; `npm install` recria |
 | `frontend/.env` | Apontava para portas erradas e nunca era lido. Removido |
-| Ícone do tema | O botão comparava com `'britodark'`, um tema que não existia. Corrigido ao renomear os temas para `portolight`/`portodark` |
+| Frontend refeito | Página "Sobre" e DaisyUI removidos; biblioteca mostra contratos (não chunks); tela de upload; Markdown do LLM renderizado e sanitizado; modo pergunta na página inicial; lista não é mais carregada duas vezes; botão de tema que comparava com `'britodark'` (tema inexistente) deixou de existir: o tema agora segue o sistema |
 
 ### Abertos
 
@@ -104,6 +106,7 @@ Encontrados lendo e rodando o código. Bons candidatos para as primeiras modific
 | Metadados `valores_monetarios`, `cpfs`, `nomes` são lidos mas nunca gravados | `pinecone_utils.py` × `processar_contrato.py` |
 | Upsert de um chunk por vez (lento) | `processar_contrato.py` |
 | `inicializar_pinecone()` abre conexão nova a cada pergunta | `pinecone_utils.py` |
+| `openrouter/free` sorteia um modelo grátis a cada chamada; às vezes cai num modelo classificador de segurança, que responde `User Safety: unsafe` em vez de uma resposta. Fixar um modelo específico em `AI_MODEL` resolve | `.env` |
 
 **Código**
 
@@ -121,8 +124,5 @@ Encontrados lendo e rodando o código. Bons candidatos para as primeiras modific
 | Problema | Onde |
 |---|---|
 | A listagem mostra chunks como se fossem contratos ("132 contratos") | `contratos/+page.svelte` |
-| Lista carregada duas vezes ao abrir (bloco `$:` + `onMount`) | `contratos/+page.svelte` |
-| Resposta do LLM com Markdown cru e inserida com `{@html}` sem sanitizar | `contratos/+page.svelte` |
-| Modo pergunta não disponível a partir da página inicial | `+page.svelte` |
-| Sem tela de upload; `upload-api.ts` e `ApiTest.svelte` não são usados | `src/lib/` |
+| A página do contrato baixa todos os chunks do índice para filtrar um contrato | `api.ts` (`listarTrechos`) |
 | URLs da API fixas no código; os proxies do Vite não têm efeito | `api.ts`, `vite.config.js` |

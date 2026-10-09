@@ -9,7 +9,7 @@ Sistema de consulta de contratos imobiliários com IA. Você faz uma busca ou um
 | Backend | Python, FastAPI, LangChain (leitura e divisão dos PDFs) |
 | IA | Qualquer API compatível com OpenAI (padrão: OpenRouter) para embeddings e chat |
 | Banco vetorial | Pinecone (serverless, plano gratuito) |
-| Frontend | SvelteKit, Tailwind CSS, DaisyUI |
+| Frontend | SvelteKit, Tailwind CSS |
 
 ## Início rápido
 

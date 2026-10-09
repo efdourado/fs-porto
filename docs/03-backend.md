@@ -205,7 +205,7 @@ Servidor separado (porta 8001) para receber PDFs novos.
 
 Se já existir um arquivo com o mesmo nome, acrescenta um timestamp (`nome_1760000000.pdf`).
 
-> O frontend ainda não tem tela de upload. Para testar, use `curl` ou o arquivo [`exemplos/requisicoes.http`](../exemplos/requisicoes.http).
+> No frontend, o upload é o botão "Adicionar" da página Contratos. Também dá para testar com `curl` ou com o arquivo [`exemplos/requisicoes.http`](../exemplos/requisicoes.http).
 
 ---
 

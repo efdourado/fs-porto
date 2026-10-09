@@ -49,7 +49,7 @@ O ponto fraco do RAG é a etapa 1: se a busca não traz o chunk certo, o LLM nã
 graph LR
     U[Usuário] --> F[Frontend SvelteKit<br/>:5173]
     F -->|busca, lista, pergunta| A[api_pinecone.py<br/>:8000]
-    F -.->|upload<br/>sem tela ainda| UP[api_upload.py<br/>:8001]
+    F -->|upload| UP[api_upload.py<br/>:8001]
     A --> L[llm_router.py<br/>/llm/ask]
     L --> PU[pinecone_utils.py]
     UP --> P[processar_contrato.py]

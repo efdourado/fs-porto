@@ -1,40 +1,46 @@
 # 04 · Frontend
 
-Aplicação **SvelteKit** (Svelte 4) com **Tailwind CSS** e **DaisyUI**, em `frontend/`. Roda em modo desenvolvimento com Vite na porta 5173.
+Aplicação **SvelteKit** (Svelte 4) com **Tailwind CSS**, em `frontend/`. Roda com Vite na porta 5173. O visual é minimalista, no estilo Apple: fonte do sistema, cinzas neutros, um único azul de destaque e modo escuro automático (segue a configuração do sistema).
 
 ## Conceitos rápidos
 
 - **Svelte** compila componentes `.svelte` (HTML + `<script>` + `<style>` no mesmo arquivo) para JavaScript puro. Variáveis comuns são reativas: mudar `x = 1` atualiza a tela.
-  - `$: { ... }` é um **bloco reativo**: roda de novo sempre que uma variável usada dentro dele muda.
+  - `$: y = f(x)` é uma **declaração reativa**: recalcula sempre que `x` muda.
   - `bind:value={x}` liga um input a uma variável nos dois sentidos.
   - `export let x` declara uma **prop** (parâmetro que o componente pai passa).
-  - `{#if}`, `{#each}`, `{@html}` são a sintaxe de template.
-- **SvelteKit** adiciona roteamento por pastas: `src/routes/contratos/+page.svelte` vira a URL `/contratos`. `+layout.svelte` envolve todas as páginas.
-- **Tailwind** são classes utilitárias (`flex`, `mb-4`, `text-xl`). **DaisyUI** adiciona componentes prontos por classe (`btn`, `card`, `navbar`, `toggle`, `alert`) e temas.
+  - `{#if}`, `{#each}`, `{@html}` são a sintaxe de template; `in:fade`, `in:fly` são transições.
+  - `$page` (de `$app/stores`) é um *store* com a URL atual; o `$` na frente lê o valor e reage a mudanças.
+- **SvelteKit** adiciona roteamento por pastas: `src/routes/contratos/+page.svelte` vira `/contratos`. Uma pasta entre colchetes (`[arquivo]`) é um **parâmetro**: `/contratos/qualquer-coisa` cai nela, com `$page.params.arquivo = "qualquer-coisa"`. `+layout.svelte` envolve todas as páginas.
+- **Tailwind** são classes utilitárias (`flex`, `mt-4`, `rounded-2xl`). As cores do projeto (`bg-surface`, `text-muted`, `text-accent`...) são definidas em `tailwind.config.js` a partir de variáveis CSS.
 
 ## Estrutura
 
 ```
 frontend/
 ├── src/
-│   ├── app.html                 # HTML base (lang="pt-BR")
-│   ├── app.css                  # só as 3 diretivas do Tailwind
+│   ├── app.html                       # HTML base: título, favicon, fonte Inter
+│   ├── app.css                        # paleta (claro/escuro), estilos base e do Markdown
 │   ├── routes/
-│   │   ├── +layout.svelte       # cabeçalho, menu, tema; envolve todas as páginas
-│   │   ├── +page.svelte         # /          página inicial
-│   │   ├── contratos/+page.svelte  # /contratos  listagem, busca e modo pergunta
-│   │   └── sobre/+page.svelte   # /sobre     texto institucional
+│   │   ├── +layout.ts                 # ssr = false (o app roda só no navegador)
+│   │   ├── +layout.svelte             # cabeçalho + barra de abas no celular
+│   │   ├── +page.svelte               # /                  buscar e perguntar
+│   │   └── contratos/
+│   │       ├── +page.svelte           # /contratos         biblioteca + upload
+│   │       └── [arquivo]/+page.svelte # /contratos/<pdf>   leitura de um contrato
 │   └── lib/
+│       ├── contratos.ts               # nome do arquivo → nomes legíveis; reflow do texto
+│       ├── markdown.ts                # Markdown do LLM → HTML seguro
 │       ├── services/
-│       │   ├── api.ts           # cliente da API :8000 (axios)
-│       │   └── upload-api.ts    # cliente da API :8001 (não usado)
+│       │   ├── api.ts                 # API de busca :8000
+│       │   └── upload-api.ts          # API de upload :8001
 │       └── components/
-│           ├── SearchBar.svelte
-│           ├── ContratoCard.svelte
-│           └── ApiTest.svelte   # não usado
-├── tailwind.config.js           # cores, animações e temas DaisyUI
-├── vite.config.js               # proxy /api e /upload-api (não usado)
-├── svelte.config.js             # adapter-auto
+│           ├── SearchField.svelte     # controle Buscar/Perguntar + campo
+│           ├── ResultCard.svelte      # um trecho encontrado na busca
+│           ├── Answer.svelte          # resposta do LLM + fontes
+│           ├── Avatar.svelte          # imagem redonda dos contratos
+│           └── Icon.svelte            # ícones SVG
+├── static/                            # logo, favicon, avatar (servidos na raiz: /logo.png)
+├── tailwind.config.js                 # fontes, cores, animações
 └── package.json
 ```
 
@@ -42,90 +48,135 @@ frontend/
 
 ---
 
-## `src/lib/services/api.ts`
+## Design: `app.css` e `tailwind.config.js`
 
-O único ponto de contato do frontend com o backend. Cria uma instância do **axios** com `baseURL: 'http://127.0.0.1:8000'` (fixa no código) e timeout de 10 s.
+A paleta mora em **variáveis CSS** no `:root`, com valores RGB:
 
-| Função | Chama | Usada em |
-|---|---|---|
-| `listarContratos(skip, limit)` | `GET /contratos` | `/contratos` sem busca |
-| `buscarContratos(query, limit=5)` | `GET /contratos/busca` | `/contratos` com busca |
-| `listarArquivos()` | `GET /contratos/arquivos` | nenhum lugar |
-| `askQuestion(question, maxResults=3)` | `POST /llm/ask` (timeout 30 s) | `/contratos` no modo pergunta |
+```css
+:root { --bg: 255 255 255; --surface: 245 245 247; --ink: 29 29 31; --accent: 0 113 227; ... }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: 0 0 0; --surface: 28 28 30; --ink: 245 245 247; --accent: 41 151 255; ... }
+}
+```
 
-Também exporta as interfaces TypeScript `Contrato`, `SearchResponse` e `LLMResponse`, que espelham os modelos Pydantic do backend.
+O `tailwind.config.js` transforma cada uma em uma cor (`surface: 'rgb(var(--surface) / <alpha-value>)'`). Resultado:
 
-> O arquivo importa `env` de `$env/dynamic/public`, mas não usa: as URLs estão fixas no código. Trocar de porta exige editar este arquivo.
+- `bg-surface`, `text-muted`, `text-accent` funcionam em qualquer componente;
+- opacidade funciona (`bg-accent/10` = azul a 10%);
+- o **modo escuro não exige nenhuma classe `dark:`**: o navegador troca as variáveis e tudo muda junto.
 
-## `src/lib/services/upload-api.ts`
+| Token | Uso |
+|---|---|
+| `bg` | Fundo da página |
+| `surface` | Cartões, campos, listas (o cinza claro da Apple, `#f5f5f7`) |
+| `elevated` | Elemento sobre `surface` (botão ativo do controle segmentado) |
+| `ink` / `muted` | Texto principal / secundário |
+| `line` | Bordas finas (já inclui opacidade, por isso é definida à parte em `app.css`) |
+| `accent` | Azul de ação |
+| `danger` | Erros |
 
-Cria um axios para `http://localhost:8001` com `Content-Type: multipart/form-data`. **Nenhum componente importa este arquivo**: a tela de upload nunca foi construída.
+`app.css` também define `.skeleton` (placeholder animado de carregamento) e `.markdown` (tipografia das respostas do LLM).
 
 ---
 
-## `src/routes/+layout.svelte`
+## `src/routes/+layout.svelte` e `+layout.ts`
 
-Envolve todas as páginas (`<slot />` é onde a página entra).
-
-- **Cabeçalho:** `navbar` do DaisyUI com gradiente, logo "Porto", links Início / Contratos / Sobre e, em telas pequenas, um menu dropdown.
-- **Tema claro/escuro:** um store `currentTheme`; `toggleTheme()` alterna entre `portolight` e `portodark`, salva no `localStorage` e aplica com o atributo `data-theme` no `<html>` (é assim que o DaisyUI troca de tema). Os dois temas são definidos em `tailwind.config.js`.
+- **Cabeçalho:** fixo no topo, translúcido (`bg-bg/75 backdrop-blur-xl`): o conteúdo aparece borrado por trás ao rolar. Logo + "Porto" à esquerda; links "Buscar" e "Contratos" à direita (só a partir de `sm`, 640 px).
+- **Barra de abas (celular):** abaixo de 640 px os links vão para uma barra fixa embaixo, com ícones, no estilo iOS. `env(safe-area-inset-bottom)` evita a barra de gestos do iPhone.
+- **Link ativo:** `ativo(href)` compara com `$page.url.pathname`; `/contratos/x` também marca "Contratos".
+- **`+layout.ts`** exporta `ssr = false`: o SvelteKit não renderiza no servidor. Todas as páginas dependem de chamadas à API feitas no navegador, então renderizar no servidor só duplicaria as chamadas.
 
 ## `src/routes/+page.svelte` (`/`)
 
-Página inicial de apresentação: hero com título e `SearchBar`, uma ilustração, três cards de recursos e uma chamada para "Ver Contratos". Animações com `svelte/transition` (`fade`, `fly`) disparadas por `isVisible` 100 ms após montar.
+A tela principal: buscar e perguntar.
 
-Ao buscar, faz `goto('/contratos?q=...')`. O modo pergunta não está disponível aqui; a página `/contratos` sempre abre com ele desligado.
+**A URL é a fonte da verdade.** Enviar uma consulta faz `goto('/?q=...&modo=perguntar')`, e um bloco reativo lê a URL e executa:
+
+```ts
+$: consulta = $page.url.searchParams.get('q')?.trim() ?? '';
+$: modoUrl = $page.url.searchParams.get('modo') === 'perguntar' ? 'perguntar' : 'buscar';
+$: executar(consulta, modoUrl);
+```
+
+Vantagens: o botão voltar do navegador funciona, dá para compartilhar o link de uma busca, e recarregar a página refaz a consulta.
+
+**Estados:** `vazio` (título grande e sugestões) → `carregando` (esqueletos) → `pronto` ou `erro`. A variável `chaveAtual` descarta respostas antigas: se você fizer uma segunda pergunta antes de a primeira voltar, a primeira é ignorada quando chegar.
+
+- Modo **Buscar** → `buscarContratos` (8 resultados) → um `ResultCard` por trecho.
+- Modo **Perguntar** → `askQuestion` (5 trechos de contexto, timeout de 60 s) → `Answer`.
+
+As sugestões de cada modo foram escolhidas porque funcionam bem com os contratos de exemplo.
 
 ## `src/routes/contratos/+page.svelte` (`/contratos`)
 
-A página que realmente usa o backend.
+A biblioteca. Chama `listarArquivos()` (12 nomes) e transforma cada nome com `descreverContrato` em locatário, locador e código. Mostra uma lista agrupada (estilo Ajustes do iOS), ordenada por nome.
 
-**Estado:** `searchQuery`, `isLoading`, `error`, `resultados`, `total`, `currentPage`, `itemsPerPage = 10`, `useLLM` (o toggle "Modo Pergunta") e `llmResponse`.
+- **Filtro:** filtra na hora, no navegador, ignorando acentos e maiúsculas (`normalize('NFD')` separa as letras dos acentos, que são então removidos).
+- **Adicionar:** abre o seletor de arquivo e envia o PDF com `uploadService.enviarContrato`. A API responde **antes** de terminar de indexar (veja `BackgroundTasks` em [03 · Backend](03-backend.md)), então a página consulta `listarArquivos()` a cada 3 s até o novo arquivo aparecer (no máximo 2 minutos).
 
-**Fluxo:**
+## `src/routes/contratos/[arquivo]/+page.svelte`
 
-1. Um bloco reativo `$:` lê `?q=` da URL. Com `q`, chama `performSearch`; sem `q`, chama `loadContratos`. (O `onMount` também chama `loadContratos`, então a lista é buscada duas vezes ao abrir.)
-2. `loadContratos(page)` → `listarContratos(skip, 10)`. Mostra paginação se `total > 10`.
-3. `performSearch(query)`:
-   - modo normal → `buscarContratos` → um `ContratoCard` por chunk, com o score em %;
-   - modo pergunta → `askQuestion` → mostra `answer` num balão (`chat-bubble`) com a lista de fontes. A resposta é inserida com `{@html}`, trocando `\n` por `<br>`. O Markdown que o LLM devolve (`**negrito**`, listas) aparece cru.
-4. `handleSearch` atualiza a URL com `history.pushState` e busca.
+Um contrato. Busca todos os chunks (`listarTrechos`) e oferece duas visões:
 
-> A listagem mostra **chunks**, não contratos: "Mostrando 1–10 de 132 contratos" são 132 pedaços de 12 contratos.
+- **Documento:** os chunks reunidos num texto contínuo e legível. A junção devolve a quebra de linha que o splitter descartou no corte, usa `removerSobreposicao` (tira a repetição do `chunk_overlap`) e `reflow` (junta as linhas quebradas do PDF em parágrafos e separa títulos em caixa alta).
+- **Trechos:** os chunks crus, numerados, com o tamanho em caracteres: exatamente o que está no Pinecone. Útil para entender a indexação.
 
-## `src/routes/sobre/+page.svelte` (`/sobre`)
-
-Página estática: descrição do produto, tecnologias e "Como Funciona" (Upload, Indexação, Consulta, Resultados).
+Os nomes com acento (o arquivo diz "Altos Padroes Construcoes") vêm do próprio texto, com `partesDoTexto`, que procura `LOCADOR:` e `LOCATÁRIO:`.
 
 ---
 
-## Componentes
+## `src/lib`
 
-### `SearchBar.svelte`
+### `services/api.ts`
 
-Props: `placeholder`, `value` (com `bind:`). Um `<form>` com input e botão "Buscar". No submit (`on:submit|preventDefault`, que evita recarregar a página), dispara o evento `search` com o texto, via `createEventDispatcher`. Quem usa escuta com `on:search={...}`.
+Cliente axios da API de busca (`http://127.0.0.1:8000`, fixo no código).
 
-### `ContratoCard.svelte`
+| Função | Chama | Usada em |
+|---|---|---|
+| `listarContratos(skip, limit)` | `GET /contratos` | `listarTrechos` |
+| `listarTrechos(arquivo)` | `GET /contratos?limit=10000` e filtra | página do contrato |
+| `buscarContratos(query, limit=8)` | `GET /contratos/busca` | `/` modo Buscar |
+| `listarArquivos()` | `GET /contratos/arquivos` | `/contratos` |
+| `askQuestion(question, maxResults=5)` | `POST /llm/ask` | `/` modo Perguntar |
 
-Props: `contrato` (`{ arquivo, texto, score? }`) e `expanded`. Mostra o nome do arquivo, um badge `NN% relevante` (score × 100) e o texto cortado em 200 caracteres, com botão "Mostrar mais/menos".
+`mensagemDeErro` converte falhas em mensagens legíveis: o `detail` do FastAPI quando existe, ou "a API está rodando na porta 8000?" quando não há resposta.
 
-### `ApiTest.svelte`
+> `listarTrechos` baixa **todos** os chunks para filtrar um contrato. Com 132 chunks é instantâneo; com milhares, o certo seria um endpoint no backend usando `index.list(prefix=...)`. Bom exercício.
 
-Chama `GET /` ao montar e mostra o status da API e do Pinecone com badges. **Não é usado em nenhuma página.**
+### `services/upload-api.ts`
+
+`enviarContrato(arquivo)` monta um `FormData` com o campo `file` e faz `POST /upload/contrato`. Não define `Content-Type`: com `FormData`, o navegador gera `multipart/form-data` com o *boundary* correto sozinho.
+
+### `contratos.ts`
+
+| Função | O que faz |
+|---|---|
+| `descreverContrato(arquivo)` | `Contrato_Altos_Padroes_Construcoes_GR340_X_Bruno_Mendes_Oliveira.pdf` → `{ locador: "Altos Padroes Construcoes", codigo: "GR340", locatario: "Bruno Mendes Oliveira" }` |
+| `linkContrato(arquivo)` | URL da página do contrato (com `encodeURIComponent`) |
+| `reflow(texto)` | Linhas do PDF → blocos `{ titulo, texto }` |
+| `removerSobreposicao(anterior, atual)` | Corta do início de `atual` o que já está no fim de `anterior`, só em limite de palavra |
+| `partesDoTexto(texto)` | Extrai locador e locatário do texto do contrato |
+
+### `markdown.ts`
+
+`renderMarkdown(texto)`: o LLM responde em Markdown (`**negrito**`, listas, tabelas). `marked` converte para HTML e `DOMPurify` remove qualquer `<script>` ou atributo perigoso antes de o HTML ir para o `{@html}`. Sem o DOMPurify, um texto malicioso dentro de um contrato poderia induzir o LLM a devolver HTML que roda no seu navegador.
+
+### Componentes
+
+| Componente | Props | O que faz |
+|---|---|---|
+| `SearchField` | `value`, `modo` (ambos com `bind:`), `carregando` | Controle segmentado Buscar/Perguntar + campo com botão de enviar (some quando o campo está vazio). Dispara `submit` e `modo` |
+| `ResultCard` | `resultado` | Avatar, locatário, locador, score (similaridade de cosseno) e o trecho com os títulos como rótulos |
+| `Answer` | `resposta` | Markdown renderizado + "Trechos consultados" (contratos únicos, com link) |
+| `Avatar` | `size` | A imagem `static/avatar.jpg` redonda |
+| `Icon` | `name`, `size`, `stroke` | Ícones SVG em traço fino: `search`, `brain`, `doc`, `plus`, `chevron-left/right`, `arrow-up`, `x` |
 
 ---
-
-## Configuração
-
-- **`tailwind.config.js`:** onde o Tailwind procura classes (`content`), a fonte Inter, as animações `gradient` e `fade-in`, o plugin DaisyUI e os temas `portolight` e `portodark` (cores `primary`, `secondary`, `base-100`...). É o arquivo central para mudar a cara do app.
-- **`vite.config.js`:** define proxies `/api → :8000` e `/upload-api → :8001`. Como `api.ts` usa a URL completa, os proxies não são usados.
-- **`svelte.config.js`:** `adapter-auto` (escolhe o adaptador de deploy automaticamente) e `vitePreprocess` (permite TypeScript nos componentes).
-- **`postcss.config.js`:** liga Tailwind e Autoprefixer ao pipeline de CSS.
 
 ## Comandos
 
 ```bash
 npm run dev      # servidor de desenvolvimento (hot reload)
-npm run build    # build de produção
 npm run check    # checagem de tipos (svelte-check)
+npm run build    # build de produção
 ```

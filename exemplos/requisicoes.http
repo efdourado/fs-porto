@@ -1,0 +1,50 @@
+# Requisições de exemplo para a API do Contratus AI.
+# No VS Code, instale a extensão "REST Client" (humao.rest-client) e clique em "Send Request" acima de cada bloco.
+# As respostas reais de cada uma estão em exemplos/respostas/.
+
+@busca = http://127.0.0.1:8000
+@upload = http://127.0.0.1:8001
+
+### Status da API e do Pinecone  → respostas/status.json
+GET {{busca}}/
+
+### Listar chunks (paginação)  → respostas/contratos-lista.json
+GET {{busca}}/contratos?skip=0&limit=2
+
+### Busca semântica  → respostas/contratos-busca.json
+GET {{busca}}/contratos/busca?q=multa por rescisão&limit=3
+
+### Arquivos indexados  → respostas/contratos-arquivos.json
+GET {{busca}}/contratos/arquivos
+
+### Pergunta ao LLM (RAG)  → respostas/llm-ask.json
+POST {{busca}}/llm/ask
+Content-Type: application/json
+
+{
+  "question": "Qual a multa por rescisão antecipada no contrato do Bruno Mendes Oliveira?",
+  "max_results": 3
+}
+
+### Pergunta que funciona bem: sem palavras que ativam o "enriquecimento"
+POST {{busca}}/llm/ask
+Content-Type: application/json
+
+{
+  "question": "Quem é o locador do imóvel alugado pela Carla Ferreira Santos?",
+  "max_results": 5
+}
+
+### PDFs na pasta contratos/  → respostas/upload-lista.json
+GET {{upload}}/contratos/lista
+
+### Upload de um PDF (troque o caminho por um arquivo seu)
+POST {{upload}}/upload/contrato
+Content-Type: multipart/form-data; boundary=limite
+
+--limite
+Content-Disposition: form-data; name="file"; filename="novo_contrato.pdf"
+Content-Type: application/pdf
+
+< ./novo_contrato.pdf
+--limite--

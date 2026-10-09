@@ -1,0 +1,6 @@
+{
+  "status": "online",
+  "message": "Contratus AI API está funcionando com Pinecone!",
+  "pinecone_status": "conectado",
+  "total_vetores": 132
+}

@@ -7,7 +7,7 @@ import time
 from shared import buscar_contratos
 
 router = APIRouter()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from ai_config import ai_client as client, AI_MODEL
 
 class QuestionRequest(BaseModel):
     question: str
@@ -55,7 +55,7 @@ async def ask_question(request: QuestionRequest):
         )
 
         # 4. Geração da resposta com o LLM
-        modelo = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        modelo = AI_MODEL
         print(f"[LLM] Gerando resposta com o modelo {modelo}...")
         
         try:

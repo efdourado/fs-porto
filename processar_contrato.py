@@ -20,8 +20,7 @@ PINECONE_HOST = os.getenv("PINECONE_HOST")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "brito-ai")
 
 # Configurações da OpenAI
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-EMBEDDING_MODEL = "text-embedding-3-small"
+from ai_config import ai_client, AI_API_KEY as OPENAI_API_KEY, EMBEDDING_MODEL
 
 # Verifica se as chaves estão configuradas
 if not PINECONE_API_KEY:
@@ -33,14 +32,13 @@ if not PINECONE_HOST:
     sys.exit(1)
     
 if not OPENAI_API_KEY:
-    print("ERRO: OPENAI_API_KEY não encontrada no arquivo .env")
+    print("ERRO: AI_API_KEY (ou OPENAI_API_KEY) não encontrada no arquivo .env")
     sys.exit(1)
 
 def gerar_embedding(texto):
     """Gera um embedding usando o modelo da OpenAI."""
     try:
-        client = OpenAI(api_key=OPENAI_API_KEY)
-        response = client.embeddings.create(
+        response = ai_client.embeddings.create(
             input=texto,
             model=EMBEDDING_MODEL
         )

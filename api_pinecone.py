@@ -21,9 +21,7 @@ PINECONE_HOST = os.getenv("PINECONE_HOST")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "brito-ai")
 
 # Configurações da OpenAI
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-EMBEDDING_MODEL = "text-embedding-3-small"
+from ai_config import ai_client as openai_client, AI_API_KEY as OPENAI_API_KEY, EMBEDDING_MODEL, EMBEDDING_DIM
 
 # Variáveis globais para conexão com Pinecone
 pc = None
@@ -185,8 +183,8 @@ def listar_contratos(
         
         # Busca genérica para obter todos os documentos
         # Nota: Isso não é eficiente para grandes conjuntos de dados
-        # Criamos um vetor de zeros com a dimensão correta (1536 para text-embedding-3-small)
-        dummy_vector = [0.0] * 1536
+        # Criamos um vetor de zeros com a dimensão do modelo de embedding
+        dummy_vector = [0.0] * EMBEDDING_DIM
         
         # Fazemos uma consulta com um limite alto
         resultados_query = index.query(
@@ -301,8 +299,8 @@ def listar_arquivos():
         
         # Busca genérica para obter documentos
         # Nota: Isso não é eficiente para grandes conjuntos de dados
-        # Criamos um vetor de zeros com a dimensão correta (1536 para text-embedding-3-small)
-        dummy_vector = [0.0] * 1536
+        # Criamos um vetor de zeros com a dimensão do modelo de embedding
+        dummy_vector = [0.0] * EMBEDDING_DIM
         
         # Fazemos uma consulta com um limite alto
         resultados_query = index.query(

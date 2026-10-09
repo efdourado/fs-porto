@@ -15,9 +15,7 @@ PINECONE_HOST = os.getenv("PINECONE_HOST")
 INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "brito-ai")
 
 # Configurações da OpenAI
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-EMBEDDING_MODEL = "text-embedding-3-small"
+from ai_config import ai_client as openai_client, AI_API_KEY as OPENAI_API_KEY, EMBEDDING_MODEL, EMBEDDING_DIM
 
 def inicializar_pinecone():
     """Inicializa a conexão com o Pinecone e retorna o índice."""
@@ -242,8 +240,8 @@ def listar_todos_documentos(limit=100):
         # Para listar documentos, precisamos fazer uma consulta genérica
         # já que a nova API do Pinecone não tem um método direto para listar todos os vetores
         try:
-            # Criamos um vetor de zeros com a dimensão correta (1536 para text-embedding-3-small)
-            dummy_vector = [0.0] * 1536
+            # Criamos um vetor de zeros com a dimensão do modelo de embedding
+            dummy_vector = [0.0] * EMBEDDING_DIM
             
             # Fazemos uma consulta com um limite alto
             resultados = index.query(
